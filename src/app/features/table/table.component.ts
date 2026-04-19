@@ -41,7 +41,8 @@ function computeSeatPositions(n: number): SeatPosition[] {
 interface ContextMenu {
   x: number;
   y: number;
-  seatNumber: number;
+  type: 'seat-occupied' | 'seat-empty' | 'add-seat';
+  seatNumber?: number;
 }
 
 @Component({
@@ -108,21 +109,45 @@ export class TableComponent implements OnInit, OnDestroy {
 
   onSeatContextMenu(event: MouseEvent, seatNumber: number): void {
     event.preventDefault();
-    this.contextMenu.set({ x: event.clientX, y: event.clientY, seatNumber });
+    event.stopPropagation();
+    const isOccupied = !!this.seats()[seatNumber];
+    this.contextMenu.set({
+      x: event.clientX,
+      y: event.clientY,
+      type: isOccupied ? 'seat-occupied' : 'seat-empty',
+      seatNumber,
+    });
+  }
+
+  onTableContextMenu(event: MouseEvent): void {
+    event.preventDefault();
+    const count = this.settingsService.settings().seatCount;
+    if (count >= 12) return;
+    this.contextMenu.set({ x: event.clientX, y: event.clientY, type: 'add-seat' });
   }
 
   onContextMenuRemove(): void {
     const m = this.contextMenu();
-    if (m) this.tableService.removeSeatPlayer(m.seatNumber);
+    if (m?.seatNumber !== undefined) {
+      this.tableService.removeSeatPlayer(m.seatNumber);
+      const count = this.settingsService.settings().seatCount;
+      if (count > 2) this.settingsService.setSeatCount(count - 1);
+    }
     this.contextMenu.set(null);
   }
 
   onContextMenuAdd(): void {
     const m = this.contextMenu();
-    if (m) {
+    if (m?.seatNumber !== undefined) {
       this.selectedEmptySeat.set(m.seatNumber);
       this.showAssignDialog.set(true);
     }
+    this.contextMenu.set(null);
+  }
+
+  onContextMenuAddSeat(): void {
+    const count = this.settingsService.settings().seatCount;
+    if (count < 12) this.settingsService.setSeatCount(count + 1);
     this.contextMenu.set(null);
   }
 
@@ -147,4 +172,3 @@ export class TableComponent implements OnInit, OnDestroy {
     this.tableService.rotateBB();
   }
 }
-

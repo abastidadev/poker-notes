@@ -11,7 +11,6 @@ export interface TableState {
 
 export const TOTAL_SEATS = 12;
 
-
 export function createDefaultTableState(): TableState {
   const seats: Record<number, string | null> = {};
   for (let i = 1; i <= TOTAL_SEATS; i++) {
