@@ -1,0 +1,250 @@
+<div class="min-h-[calc(100vh-48px)] bg-gray-50 dark:bg-gray-900 p-4">
+  <div class="max-w-2xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center gap-2">
+      <button
+        class="p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-400"
+        (click)="goBack.emit()"
+      >
+        ←
+      </button>
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+        {{ 'settings.title' | t: lang() }}
+      </h2>
+    </div>
+
+    <!-- Theme -->
+    <section class="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        {{ 'settings.appearance' | t: lang() }}
+      </h3>
+      <div class="flex gap-2">
+        @for (theme of ['light', 'dark', 'felt-green']; track theme) {
+          <button
+            class="px-3 py-1.5 text-sm rounded-md border transition-colors"
+            [class.bg-blue-600]="settings().theme === theme"
+            [class.text-white]="settings().theme === theme"
+            [class.border-blue-600]="settings().theme === theme"
+            [class.bg-white]="settings().theme !== theme"
+            [class.dark:bg-gray-700]="settings().theme !== theme"
+            [class.text-gray-700]="settings().theme !== theme"
+            [class.dark:text-gray-300]="settings().theme !== theme"
+            [class.border-gray-300]="settings().theme !== theme"
+            [class.dark:border-gray-600]="settings().theme !== theme"
+            (click)="onThemeChange(theme)"
+          >
+            {{
+              theme === 'light'
+                ? ('settings.light' | t: lang())
+                : theme === 'dark'
+                  ? ('settings.dark' | t: lang())
+                  : ('settings.felt' | t: lang())
+            }}
+          </button>
+        }
+      </div>
+    </section>
+
+    <!-- Language -->
+    <section class="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        {{ 'settings.language' | t: lang() }}
+      </h3>
+      <div class="flex gap-2">
+        <button
+          class="px-3 py-1.5 text-sm rounded-md border transition-colors"
+          [class.bg-blue-600]="settings().language === 'es'"
+          [class.text-white]="settings().language === 'es'"
+          [class.border-blue-600]="settings().language === 'es'"
+          [class.bg-white]="settings().language !== 'es'"
+          [class.dark:bg-gray-700]="settings().language !== 'es'"
+          [class.text-gray-700]="settings().language !== 'es'"
+          [class.dark:text-gray-300]="settings().language !== 'es'"
+          [class.border-gray-300]="settings().language !== 'es'"
+          [class.dark:border-gray-600]="settings().language !== 'es'"
+          (click)="onLanguageChange('es')"
+        >
+          🇪🇸 Español
+        </button>
+        <button
+          class="px-3 py-1.5 text-sm rounded-md border transition-colors"
+          [class.bg-blue-600]="settings().language === 'en'"
+          [class.text-white]="settings().language === 'en'"
+          [class.border-blue-600]="settings().language === 'en'"
+          [class.bg-white]="settings().language !== 'en'"
+          [class.dark:bg-gray-700]="settings().language !== 'en'"
+          [class.text-gray-700]="settings().language !== 'en'"
+          [class.dark:text-gray-300]="settings().language !== 'en'"
+          [class.border-gray-300]="settings().language !== 'en'"
+          [class.dark:border-gray-600]="settings().language !== 'en'"
+          (click)="onLanguageChange('en')"
+        >
+          🇬🇧 English
+        </button>
+      </div>
+    </section>
+
+    <!-- Color mappings -->
+    <section class="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        {{ 'settings.colorsTitle' | t: lang() }}
+      </h3>
+      <div class="space-y-2">
+        @for (mapping of settings().colorMappings; track mapping.type) {
+          <div class="flex items-center gap-3">
+            <app-color-picker
+              [value]="mapping.color"
+              (colorChange)="onColorMappingChange(mapping.type, $event)"
+            />
+            <span class="flex-1 text-sm text-gray-700 dark:text-gray-300">
+              {{ getTypeLabel(mapping.type) }}
+            </span>
+            <button
+              class="text-xs text-gray-400 hover:text-blue-500 transition-colors"
+              (click)="onResetColorMapping(mapping.type)"
+            >
+              {{ 'settings.resetColor' | t: lang() }}
+            </button>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Custom tags -->
+    <section class="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        {{ 'settings.customTags' | t: lang() }}
+      </h3>
+      <div class="space-y-2 mb-3">
+        @for (tag of customTags(); track tag.id) {
+          @if (editingTagId() === tag.id) {
+            <div class="flex items-center gap-2">
+              <input
+                type="color"
+                class="w-8 h-8 rounded border-0 cursor-pointer bg-transparent p-0"
+                [ngModel]="editTagColor()"
+                (ngModelChange)="editTagColor.set($event)"
+              />
+              <input
+                type="text"
+                class="flex-1 px-2 py-1 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none"
+                [ngModel]="editTagName()"
+                (ngModelChange)="editTagName.set($event)"
+              />
+              <button
+                class="px-2 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                (click)="onSaveTag()"
+              >
+                ✓
+              </button>
+              <button
+                class="px-2 py-1 text-xs rounded-md bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300"
+                (click)="editingTagId.set(null)"
+              >
+                ✕
+              </button>
+            </div>
+          } @else {
+            <div class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded-full" [style.background-color]="tag.color"></span>
+              <span class="flex-1 text-sm text-gray-700 dark:text-gray-300">{{ tag.name }}</span>
+              <button class="text-xs text-gray-400 hover:text-blue-500" (click)="onEditTag(tag)">
+                ✏️
+              </button>
+              <button
+                class="text-xs text-gray-400 hover:text-red-500"
+                (click)="onDeleteTag(tag.id)"
+              >
+                🗑
+              </button>
+            </div>
+          }
+        } @empty {
+          <p class="text-xs text-gray-400">{{ 'settings.noCustomTags' | t: lang() }}</p>
+        }
+      </div>
+      <!-- Create new -->
+      <div class="flex items-center gap-2">
+        <input
+          type="color"
+          class="w-8 h-8 rounded border-0 cursor-pointer bg-transparent p-0"
+          [ngModel]="newTagColor()"
+          (ngModelChange)="newTagColor.set($event)"
+        />
+        <input
+          type="text"
+          [placeholder]="'settings.newTagPlaceholder' | t: lang()"
+          class="flex-1 px-2 py-1 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none"
+          [ngModel]="newTagName()"
+          (ngModelChange)="newTagName.set($event)"
+        />
+        <button
+          class="px-3 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+          [disabled]="!newTagName().trim()"
+          (click)="onCreateTag()"
+        >
+          {{ 'settings.createTag' | t: lang() }}
+        </button>
+      </div>
+    </section>
+
+    <!-- Data management -->
+    <section class="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        {{ 'settings.data' | t: lang() }}
+      </h3>
+      <div class="space-y-2">
+        <button
+          class="w-full py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+          (click)="onExport()"
+        >
+          {{ 'settings.export' | t: lang() }}
+        </button>
+
+        <label
+          class="w-full py-2 text-sm rounded-md bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors cursor-pointer flex items-center justify-center"
+        >
+          {{ 'settings.import' | t: lang() }}
+          <input type="file" accept=".json" class="hidden" (change)="onImportFile($event)" />
+        </label>
+
+        <button
+          class="w-full py-2 text-sm rounded-md bg-red-600/10 text-red-600 hover:bg-red-600/20 transition-colors"
+          (click)="onClearData()"
+        >
+          {{ 'settings.clear' | t: lang() }}
+        </button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Import confirmation -->
+<app-confirm-dialog
+  [open]="showImportConfirm()"
+  [title]="'settings.importConfirmTitle' | t: lang()"
+  [message]="'settings.importConfirmMsg' | t: lang()"
+  [confirmLabel]="'settings.importConfirmBtn' | t: lang()"
+  (confirmed)="onConfirmImport()"
+  (cancelled)="showImportConfirm.set(false)"
+/>
+
+<!-- Clear data — first confirmation -->
+<app-confirm-dialog
+  [open]="showClearConfirm()"
+  [title]="'settings.clearConfirmTitle' | t: lang()"
+  [message]="'settings.clearConfirmMsg' | t: lang()"
+  [confirmLabel]="'settings.clearConfirmBtn' | t: lang()"
+  (confirmed)="onFirstConfirm()"
+  (cancelled)="showClearConfirm.set(false)"
+/>
+
+<!-- Clear data — double confirmation -->
+<app-confirm-dialog
+  [open]="showClearDoubleConfirm()"
+  [title]="'settings.clearFinalTitle' | t: lang()"
+  [message]="'settings.clearFinalMsg' | t: lang()"
+  [confirmLabel]="'settings.clearFinalBtn' | t: lang()"
+  (confirmed)="onFinalClear()"
+  (cancelled)="showClearDoubleConfirm.set(false)"
+/>

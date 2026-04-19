@@ -1,0 +1,125 @@
+@if (open()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="onClose()">
+    <div
+      class="bg-white dark:bg-gray-800 rounded-md shadow-xl p-4 mx-4 max-w-sm w-full max-h-[80vh] overflow-y-auto"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          {{ 'assign.seat' | t: lang() }} {{ seatNumber() }}
+        </h3>
+        <button
+          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          (click)="onClose()"
+        >
+          ✕
+        </button>
+      </div>
+
+      @if (!showCreateForm()) {
+        <!-- Search -->
+        <input
+          type="text"
+          [placeholder]="'assign.search' | t: lang()"
+          class="w-full px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+        />
+
+        <!-- Player list -->
+        <div class="space-y-1 mb-3 max-h-48 overflow-y-auto">
+          @for (player of availablePlayers(); track player.id) {
+            <button
+              class="w-full flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
+              (click)="onSelectPlayer(player)"
+            >
+              <span
+                class="w-8 h-8 rounded-full flex items-center justify-center text-sm"
+                [style.background-color]="player.color"
+              >
+                {{ player.avatar || '🎭' }}
+              </span>
+              <span class="text-sm text-gray-900 dark:text-white">{{ player.alias }}</span>
+            </button>
+          } @empty {
+            <p class="text-sm text-gray-500 dark:text-gray-400 text-center py-2">
+              {{ 'assign.noPlayers' | t: lang() }}
+            </p>
+          }
+        </div>
+
+        <button
+          class="w-full py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+          (click)="showCreateForm.set(true)"
+        >
+          {{ 'assign.createNew' | t: lang() }}
+        </button>
+      } @else {
+        <!-- Create form -->
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">{{
+              'assign.alias' | t: lang()
+            }}</label>
+            <input
+              type="text"
+              [placeholder]="'assign.playerName' | t: lang()"
+              class="w-full px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [ngModel]="newAlias()"
+              (ngModelChange)="newAlias.set($event)"
+            />
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div>
+              <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">{{
+                'assign.color' | t: lang()
+              }}</label>
+              <input
+                type="color"
+                class="w-10 h-8 rounded-md border-0 cursor-pointer bg-transparent p-0"
+                [ngModel]="newColor()"
+                (ngModelChange)="newColor.set($event)"
+              />
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">{{
+                'assign.avatar' | t: lang()
+              }}</label>
+              <button
+                class="text-2xl p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                (click)="showEmojiPicker.set(true)"
+                type="button"
+              >
+                {{ newAvatar() }}
+              </button>
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              class="flex-1 py-1.5 text-sm rounded-md bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              (click)="showCreateForm.set(false)"
+            >
+              {{ 'assign.back' | t: lang() }}
+            </button>
+            <button
+              class="flex-1 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+              [disabled]="!newAlias().trim()"
+              (click)="onCreateAndAssign()"
+            >
+              {{ 'assign.createAssign' | t: lang() }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<app-emoji-picker
+  [open]="showEmojiPicker()"
+  [selected]="newAvatar()"
+  (emojiSelected)="newAvatar.set($event); showEmojiPicker.set(false)"
+  (close)="showEmojiPicker.set(false)"
+/>

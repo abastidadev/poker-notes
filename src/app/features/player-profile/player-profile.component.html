@@ -1,0 +1,261 @@
+@if (open() && player(); as p) {
+  <!-- Backdrop -->
+  <div class="fixed inset-0 z-40 bg-black/40" (click)="onClose()"></div>
+
+  <!-- Drawer -->
+  <div
+    class="fixed right-0 top-0 bottom-0 z-50 w-full sm:w-96 bg-white dark:bg-gray-900 shadow-2xl overflow-y-auto transition-transform duration-200"
+  >
+    <!-- Header -->
+    <div class="flex items-start gap-3 p-4 border-b border-gray-200 dark:border-gray-700">
+      <button
+        class="text-4xl rounded-full w-16 h-16 flex items-center justify-center hover:opacity-80 transition-opacity"
+        [style.background-color]="p.color"
+        (click)="showEmojiPicker.set(true)"
+        [title]="'profile.changeAvatar' | t: lang()"
+      >
+        {{ p.avatar || '🎭' }}
+      </button>
+      <div class="flex-1 min-w-0">
+        <input
+          type="text"
+          class="w-full text-lg font-bold bg-transparent text-gray-900 dark:text-white border-b border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:outline-none transition-colors"
+          [ngModel]="p.alias"
+          (ngModelChange)="onAliasChange($event)"
+        />
+        <div class="flex items-center gap-2 mt-1">
+          <app-color-picker [value]="p.color" (colorChange)="onColorChange($event)" />
+        </div>
+      </div>
+      <button
+        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
+        (click)="onClose()"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- Tags section -->
+    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+      <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+        {{ 'profile.tags' | t: lang() }}
+      </h4>
+      <div class="flex flex-wrap gap-1 mb-2">
+        @for (tag of playerTags(); track tag.id) {
+          <span
+            class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-white"
+            [style.background-color]="tag.color"
+          >
+            {{ tag.name }}
+            <button class="hover:opacity-70 ml-0.5" (click)="onRemoveTag(tag.id)">✕</button>
+          </span>
+        }
+      </div>
+      <button
+        class="text-xs text-blue-500 hover:text-blue-400 transition-colors"
+        (click)="showTagSelector.set(!showTagSelector())"
+      >
+        {{ 'profile.addTag' | t: lang() }}
+      </button>
+
+      @if (showTagSelector()) {
+        <div
+          class="mt-2 p-2 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 max-h-48 overflow-y-auto"
+        >
+          @if (predefinedAvailable().length) {
+            <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+              {{ 'profile.predefined' | t: lang() }}
+            </p>
+            <div class="flex flex-wrap gap-1 mb-2">
+              @for (tag of predefinedAvailable(); track tag.id) {
+                <button
+                  class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-white hover:opacity-80 transition-opacity"
+                  [style.background-color]="tag.color"
+                  (click)="onAddTag(tag.id)"
+                >
+                  {{ tag.name }}
+                </button>
+              }
+            </div>
+          }
+          @if (customAvailable().length) {
+            <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+              {{ 'profile.custom' | t: lang() }}
+            </p>
+            <div class="flex flex-wrap gap-1 mb-2">
+              @for (tag of customAvailable(); track tag.id) {
+                <button
+                  class="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-white hover:opacity-80 transition-opacity"
+                  [style.background-color]="tag.color"
+                  (click)="onAddTag(tag.id)"
+                >
+                  {{ tag.name }}
+                </button>
+              }
+            </div>
+          }
+
+          @if (!showCreateTag()) {
+            <button
+              class="text-xs text-blue-500 hover:text-blue-400 mt-1"
+              (click)="showCreateTag.set(true)"
+            >
+              {{ 'profile.createTag' | t: lang() }}
+            </button>
+          } @else {
+            <div class="mt-2 flex items-center gap-2">
+              <input
+                type="text"
+                [placeholder]="'profile.tagName' | t: lang()"
+                class="flex-1 px-2 py-1 text-xs rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none"
+                [ngModel]="newTagName()"
+                (ngModelChange)="newTagName.set($event)"
+              />
+              <input
+                type="color"
+                class="w-6 h-6 rounded cursor-pointer border-0 bg-transparent p-0"
+                [ngModel]="newTagColor()"
+                (ngModelChange)="newTagColor.set($event)"
+              />
+              <button
+                class="px-2 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                [disabled]="!newTagName().trim()"
+                (click)="onCreateTag()"
+              >
+                ✓
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Notes section -->
+    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+      <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+        {{ 'profile.notes' | t: lang() }}
+      </h4>
+      <textarea
+        class="w-full h-24 px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
+        [placeholder]="'profile.notesPlaceholder' | t: lang()"
+        [ngModel]="p.notes"
+        (ngModelChange)="onNotesChange($event)"
+      ></textarea>
+    </div>
+
+    <!-- Session history -->
+    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+          {{ 'profile.history' | t: lang() }} ({{ p.sessionHistory.length }})
+        </h4>
+        <button
+          class="text-xs text-blue-500 hover:text-blue-400"
+          (click)="showAddSession.set(!showAddSession())"
+        >
+          {{ 'profile.addSession' | t: lang() }}
+        </button>
+      </div>
+
+      @if (showAddSession()) {
+        <div
+          class="mb-3 p-2 rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 space-y-2"
+        >
+          <input
+            type="date"
+            class="w-full px-2 py-1 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none"
+            [ngModel]="sessionDate()"
+            (ngModelChange)="sessionDate.set($event)"
+          />
+          <input
+            type="text"
+            [placeholder]="'profile.sessionLocation' | t: lang()"
+            class="w-full px-2 py-1 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none"
+            [ngModel]="sessionLocation()"
+            (ngModelChange)="sessionLocation.set($event)"
+          />
+          <textarea
+            [placeholder]="'profile.sessionNotes' | t: lang()"
+            class="w-full h-16 px-2 py-1 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none focus:outline-none"
+            [ngModel]="sessionNotes()"
+            (ngModelChange)="sessionNotes.set($event)"
+          ></textarea>
+          <button
+            class="w-full py-1 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+            [disabled]="!sessionDate() || !sessionLocation().trim()"
+            (click)="onAddSession()"
+          >
+            {{ 'profile.saveSession' | t: lang() }}
+          </button>
+        </div>
+      }
+
+      <div class="space-y-2 max-h-48 overflow-y-auto">
+        @for (session of p.sessionHistory; track session.id) {
+          <div class="flex items-start justify-between p-2 rounded-md bg-gray-50 dark:bg-gray-800">
+            <div class="min-w-0">
+              <div class="text-xs text-gray-500 dark:text-gray-400">{{ session.date }}</div>
+              <div class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                {{ session.location }}
+              </div>
+              @if (session.notes) {
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {{ session.notes }}
+                </div>
+              }
+            </div>
+            <button
+              class="text-gray-400 hover:text-red-500 text-xs flex-shrink-0 ml-2"
+              (click)="onRemoveSession(session.id)"
+            >
+              🗑
+            </button>
+          </div>
+        } @empty {
+          <p class="text-xs text-gray-400 text-center py-2">
+            {{ 'profile.noSessions' | t: lang() }}
+          </p>
+        }
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="p-4 space-y-2">
+      <button
+        class="w-full py-2 text-sm rounded-md bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+        (click)="onRemoveFromTable()"
+      >
+        {{ 'profile.removeFromTable' | t: lang() }}
+      </button>
+      <button
+        class="w-full py-2 text-sm rounded-md bg-red-600/10 text-red-600 hover:bg-red-600/20 transition-colors"
+        (click)="showDeleteConfirm.set(true)"
+      >
+        {{ 'profile.deletePlayer' | t: lang() }}
+      </button>
+    </div>
+  </div>
+}
+
+<!-- Emoji picker -->
+<app-emoji-picker
+  [open]="showEmojiPicker()"
+  [selected]="player()?.avatar ?? ''"
+  (emojiSelected)="onAvatarSelected($event)"
+  (close)="showEmojiPicker.set(false)"
+/>
+
+<!-- Delete confirmation -->
+<app-confirm-dialog
+  [open]="showDeleteConfirm()"
+  [title]="'profile.deleteTitle' | t: lang()"
+  [message]="
+    ('profile.deleteMsg' | t: lang()) +
+    ' ' +
+    (player()?.alias ?? '') +
+    ('profile.deleteMsg2' | t: lang())
+  "
+  [confirmLabel]="'profile.deletePlayer' | t: lang()"
+  (confirmed)="onDeletePlayer()"
+  (cancelled)="showDeleteConfirm.set(false)"
+/>

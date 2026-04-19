@@ -1,0 +1,61 @@
+<div
+  class="relative flex flex-col items-center cursor-pointer group"
+  (click)="seatClicked.emit(seatNumber())"
+>
+  <!-- Position markers -->
+  @if (isDealer()) {
+    <span
+      class="absolute -top-2.5 -right-0.5 z-10 bg-yellow-400 text-black text-[8px] sm:text-[10px] font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shadow"
+    >
+      D
+    </span>
+  }
+  @if (isSB()) {
+    <span
+      class="absolute -top-2.5 -left-0.5 z-10 bg-blue-400 text-white text-[8px] sm:text-[10px] font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shadow"
+    >
+      SB
+    </span>
+  }
+  @if (isBB()) {
+    <span
+      class="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10 bg-orange-400 text-white text-[8px] sm:text-[10px] font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shadow"
+    >
+      BB
+    </span>
+  }
+
+  <!-- Seat circle -->
+  @if (isOccupied()) {
+    <div
+      class="w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 transition-all duration-200 group-hover:scale-110"
+      [style.background-color]="player()!.color"
+    >
+      <span class="text-base sm:text-xl">{{ player()!.avatar || '🎭' }}</span>
+    </div>
+    <span
+      class="text-[9px] sm:text-xs mt-0.5 text-gray-900 dark:text-white font-medium text-center max-w-16 sm:max-w-24 truncate"
+    >
+      {{ player()!.alias | truncate: 10 }}
+    </span>
+    <!-- Tags -->
+    @if (visibleTags().length) {
+      <div class="hidden sm:flex gap-0.5 mt-0.5 flex-wrap justify-center max-w-20">
+        @for (tag of visibleTags(); track tag.id) {
+          <app-tag-badge [name]="tag.name" [color]="tag.color" />
+        }
+        @if (extraTagCount() > 0) {
+          <span class="text-[9px] text-gray-500 dark:text-gray-300">+{{ extraTagCount() }}</span>
+        }
+      </div>
+    }
+  } @else {
+    <div
+      class="w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center bg-gray-300 dark:bg-gray-600/50 border-2 border-gray-400/50 dark:border-gray-500/30 shadow-md transition-all duration-200 group-hover:scale-110 group-hover:bg-gray-400/70 dark:group-hover:bg-gray-500/50"
+    >
+      <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-bold">{{
+        seatNumber()
+      }}</span>
+    </div>
+  }
+</div>

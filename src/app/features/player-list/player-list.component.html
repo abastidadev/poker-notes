@@ -1,0 +1,91 @@
+<div class="min-h-[calc(100vh-48px)] bg-gray-50 dark:bg-gray-900 p-4">
+  <div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center gap-2 mb-4">
+      <button
+        class="p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-400"
+        (click)="goBack.emit()"
+      >
+        ←
+      </button>
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+        {{ 'players.title' | t: lang() }}
+      </h2>
+      <span class="text-sm text-gray-500 dark:text-gray-400">({{ filteredPlayers().length }})</span>
+    </div>
+
+    <!-- Search & filters -->
+    <div class="flex gap-2 mb-4">
+      <input
+        type="text"
+        [placeholder]="'players.searchPlaceholder' | t: lang()"
+        class="flex-1 px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+      />
+      <select
+        class="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none"
+        [ngModel]="filterTagId()"
+        (ngModelChange)="filterTagId.set($event || null)"
+      >
+        <option value="">{{ 'players.allTags' | t: lang() }}</option>
+        @for (tag of allTags(); track tag.id) {
+          <option [value]="tag.id">{{ tag.name }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Player list -->
+    <div class="space-y-2">
+      @for (player of filteredPlayers(); track player.id) {
+        <div
+          class="flex items-center gap-3 p-3 rounded-md bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+          (click)="playerSelected.emit(player.id)"
+        >
+          <span
+            class="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0"
+            [style.background-color]="player.color"
+          >
+            {{ player.avatar || '🎭' }}
+          </span>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+              {{ player.alias }}
+            </div>
+            <div class="flex flex-wrap gap-0.5 mt-0.5">
+              @for (tag of getPlayerTags(player); track tag.id) {
+                <app-tag-badge [name]="tag.name" [color]="tag.color" />
+              }
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="text-xs text-gray-500 dark:text-gray-400">
+              {{ player.sessionHistory.length }} {{ 'players.sessions' | t: lang() }}
+            </span>
+            <button
+              class="p-1 text-gray-400 hover:text-red-500 transition-colors"
+              (click)="$event.stopPropagation(); deleteTarget.set(player)"
+            >
+              🗑
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="text-center py-12">
+          <p class="text-4xl mb-2">👥</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'players.empty' | t: lang() }}</p>
+          <p class="text-xs text-gray-400 mt-1">{{ 'players.emptyHint' | t: lang() }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [open]="!!deleteTarget()"
+  [title]="'players.deleteConfirmTitle' | t: lang()"
+  [message]="('players.deleteConfirmMsg' | t: lang()) + ' ' + (deleteTarget()?.alias ?? '') + '?'"
+  [confirmLabel]="'players.deleteConfirmBtn' | t: lang()"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="deleteTarget.set(null)"
+/>

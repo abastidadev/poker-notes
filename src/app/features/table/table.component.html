@@ -1,0 +1,78 @@
+<div
+  class="flex flex-col items-center justify-center flex-1 min-h-0 overflow-hidden px-8 py-2 sm:px-6"
+>
+  <!-- Table -->
+  <div class="relative w-full max-w-2xl aspect-[2/1.2] overflow-visible flex-shrink-0">
+    <!-- Oval table surface -->
+    <div
+      class="absolute inset-[14%] sm:inset-[12%] rounded-[50%] bg-emerald-700 dark:bg-emerald-900 border-[5px] sm:border-8 border-amber-800 dark:border-amber-900/80 shadow-2xl"
+    >
+      <div class="absolute inset-0 rounded-[50%] border-2 border-emerald-600/30"></div>
+      <!-- Center text -->
+      <div class="absolute inset-0 flex items-center justify-center">
+        <span class="text-emerald-600/40 text-sm sm:text-2xl font-bold tracking-widest select-none">
+          POKER NOTES
+        </span>
+      </div>
+    </div>
+
+    <!-- Seats -->
+    @for (pos of seatPositions; track pos.number) {
+      <div
+        class="absolute -translate-x-1/2 -translate-y-1/2 z-10"
+        [style.top]="pos.top"
+        [style.left]="pos.left"
+      >
+        <app-seat
+          [seatNumber]="pos.number"
+          [playerId]="seats()[pos.number] ?? null"
+          [isDealer]="dealerSeat() === pos.number"
+          [isSB]="sbSeat() === pos.number"
+          [isBB]="bbSeat() === pos.number"
+          (seatClicked)="onSeatClicked($event)"
+        />
+      </div>
+    }
+  </div>
+
+  <!-- Position rotation buttons -->
+  <div class="flex gap-2 mt-6">
+    <button
+      class="px-3 py-1 text-xs font-bold rounded-full bg-yellow-400 text-black hover:bg-yellow-300 transition-colors shadow"
+      (click)="onRotateDealer()"
+      title="Rotar Dealer"
+    >
+      D → {{ dealerSeat() }}
+    </button>
+    <button
+      class="px-3 py-1 text-xs font-bold rounded-full bg-blue-400 text-white hover:bg-blue-300 transition-colors shadow"
+      (click)="onRotateSB()"
+      title="Rotar Small Blind"
+    >
+      SB → {{ sbSeat() }}
+    </button>
+    <button
+      class="px-3 py-1 text-xs font-bold rounded-full bg-orange-400 text-white hover:bg-orange-300 transition-colors shadow"
+      (click)="onRotateBB()"
+      title="Rotar Big Blind"
+    >
+      BB → {{ bbSeat() }}
+    </button>
+  </div>
+
+  <!-- First-time hint -->
+  @if (occupiedPlayerIds().length === 0) {
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 animate-pulse">
+      {{ 'table.hint' | t: lang() }}
+    </p>
+  }
+</div>
+
+<!-- Assign player dialog -->
+<app-assign-player-dialog
+  [open]="showAssignDialog()"
+  [seatNumber]="selectedEmptySeat()"
+  [occupiedPlayerIds]="occupiedPlayerIds()"
+  (playerAssigned)="onPlayerAssigned($event)"
+  (close)="showAssignDialog.set(false)"
+/>

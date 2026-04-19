@@ -1,3 +1,32 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import "tailwindcss";
+@import 'tailwindcss';
+
+/* Enable class-based dark mode (Tailwind v4 defaults to prefers-color-scheme) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Prevent horizontal scroll globally */
+html,
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Felt green theme */
+.theme-felt-green {
+  --felt-bg: #1a472a;
+}
+
+.theme-felt-green .bg-gray-100 {
+  background-color: var(--felt-bg) !important;
+}
+
+.theme-felt-green .dark\:bg-gray-950 {
+  background-color: var(--felt-bg) !important;
+}
+
+/* Smooth scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 155, 155, 0.3) transparent;
+}
