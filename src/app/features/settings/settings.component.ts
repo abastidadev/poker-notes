@@ -11,7 +11,6 @@ import { SettingsService } from './services/settings.service';
 import { TagService } from '../tags/services/tag.service';
 import { StorageService } from '../../core/services/storage.service';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
-import { ColorPickerComponent } from '../../shared/components/color-picker/color-picker.component';
 import { DEFAULT_COLOR_MAPPINGS } from '../../core/constants/default-colors.const';
 import { COLOR_TYPE_LABELS } from '../../core/constants/default-colors.const';
 import { AppTheme, AppLanguage } from '../../core/models/settings.model';
@@ -20,7 +19,7 @@ import { TranslatePipe } from '../../core/pipes/translate.pipe';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [FormsModule, ConfirmDialogComponent, ColorPickerComponent, TranslatePipe],
+  imports: [FormsModule, ConfirmDialogComponent, TranslatePipe],
   templateUrl: './settings.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -34,7 +33,7 @@ export class SettingsComponent {
   protected readonly settings = this.settingsService.settings;
   protected readonly lang = computed(() => this.settings().language);
   protected readonly allTags = this.tagService.allTags;
-  protected readonly seatCountOptions = [6, 8, 9, 10, 12];
+  protected readonly seatCountOptions = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   protected readonly defaultColorMappings = DEFAULT_COLOR_MAPPINGS;
   protected readonly colorTypeLabels = COLOR_TYPE_LABELS;
 

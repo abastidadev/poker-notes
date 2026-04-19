@@ -1,5 +1,9 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
-import { TableState, createDefaultTableState, ACTIVE_SEATS_FOR_COUNT } from '../../../core/models/table.model';
+import {
+  TableState,
+  createDefaultTableState,
+  ACTIVE_SEATS_FOR_COUNT,
+} from '../../../core/models/table.model';
 import { StorageService } from '../../../core/services/storage.service';
 import { SettingsService } from '../../settings/services/settings.service';
 

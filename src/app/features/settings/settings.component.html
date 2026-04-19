@@ -89,7 +89,7 @@
       <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
         {{ 'settings.seatCount' | t: lang() }}
       </h3>
-      <div class="flex gap-2">
+      <div class="flex flex-wrap gap-2">
         @for (count of seatCountOptions; track count) {
           <button
             class="px-3 py-1.5 text-sm rounded-md border transition-colors"
@@ -110,31 +110,7 @@
       </div>
     </section>
 
-    <!-- Color mappings -->
-    <section class="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">
-      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-        {{ 'settings.colorsTitle' | t: lang() }}
-      </h3>
-      <div class="space-y-2">
-        @for (mapping of settings().colorMappings; track mapping.type) {
-          <div class="flex items-center gap-3">
-            <app-color-picker
-              [value]="mapping.color"
-              (colorChange)="onColorMappingChange(mapping.type, $event)"
-            />
-            <span class="flex-1 text-sm text-gray-700 dark:text-gray-300">
-              {{ getTypeLabel(mapping.type) }}
-            </span>
-            <button
-              class="text-xs text-gray-400 hover:text-blue-500 transition-colors"
-              (click)="onResetColorMapping(mapping.type)"
-            >
-              {{ 'settings.resetColor' | t: lang() }}
-            </button>
-          </div>
-        }
-      </div>
-    </section>
+    <!-- Color mappings removed -->
 
     <!-- Tags (default + custom unified) -->
     <section class="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">
@@ -172,9 +148,15 @@
             </div>
           } @else {
             <div class="flex items-center gap-2">
-              <span class="w-4 h-4 rounded-full flex-shrink-0" [style.background-color]="tag.color"></span>
+              <span
+                class="w-4 h-4 rounded-full flex-shrink-0"
+                [style.background-color]="tag.color"
+              ></span>
               <span class="flex-1 text-sm text-gray-700 dark:text-gray-300">{{ tag.name }}</span>
-              <button class="text-xs text-gray-400 hover:text-blue-500 transition-colors" (click)="onEditTag(tag)">
+              <button
+                class="text-xs text-gray-400 hover:text-blue-500 transition-colors"
+                (click)="onEditTag(tag)"
+              >
                 ✏️
               </button>
               <button
