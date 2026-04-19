@@ -1,5 +1,6 @@
 <div
   class="flex flex-col items-center justify-center flex-1 min-h-0 overflow-hidden px-8 py-2 sm:px-6"
+  (click)="closeContextMenu()"
 >
   <!-- Table -->
   <div class="relative w-full max-w-2xl aspect-[2/1.2] overflow-visible flex-shrink-0">
@@ -22,6 +23,7 @@
         class="absolute -translate-x-1/2 -translate-y-1/2 z-10"
         [style.top]="pos.top"
         [style.left]="pos.left"
+        (contextmenu)="onSeatContextMenu($event, pos.number)"
       >
         <app-seat
           [seatNumber]="pos.number"
@@ -76,3 +78,30 @@
   (playerAssigned)="onPlayerAssigned($event)"
   (close)="showAssignDialog.set(false)"
 />
+
+<!-- Context menu -->
+@if (contextMenu(); as menu) {
+  <div class="fixed inset-0 z-[60]" (click)="closeContextMenu()"></div>
+  <div
+    class="fixed z-[61] bg-white dark:bg-gray-800 rounded-md shadow-xl border border-gray-200 dark:border-gray-700 py-1 min-w-40 overflow-hidden"
+    [style.left.px]="menu.x"
+    [style.top.px]="menu.y"
+  >
+    @if (seats()[menu.seatNumber]) {
+      <button
+        class="w-full px-4 py-2 text-sm text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+        (click)="onContextMenuRemove()"
+      >
+        {{ 'table.ctxRemove' | t: lang() }}
+      </button>
+    } @else {
+      <button
+        class="w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        (click)="onContextMenuAdd()"
+      >
+        {{ 'table.ctxAdd' | t: lang() }}
+      </button>
+    }
+  </div>
+}
+

@@ -1,9 +1,5 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
-import {
-  TableState,
-  createDefaultTableState,
-  ACTIVE_SEATS_FOR_COUNT,
-} from '../../../core/models/table.model';
+import { TableState, createDefaultTableState } from '../../../core/models/table.model';
 import { StorageService } from '../../../core/services/storage.service';
 import { SettingsService } from '../../settings/services/settings.service';
 
@@ -88,10 +84,7 @@ export class TableService {
 
   private nextSeat(current: number): number {
     const count = this.settingsService.settings().seatCount;
-    const activeSeats = ACTIVE_SEATS_FOR_COUNT[count] ?? ACTIVE_SEATS_FOR_COUNT[12];
-    const idx = activeSeats.indexOf(current);
-    if (idx === -1) return activeSeats[0];
-    return activeSeats[(idx + 1) % activeSeats.length];
+    return (current % count) + 1;
   }
 
   private loadTable(): TableState {
