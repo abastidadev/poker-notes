@@ -136,6 +136,12 @@ export class TableComponent implements OnInit, OnDestroy {
     this.contextMenu.set(null);
   }
 
+  onContextMenuRemoveEmpty(): void {
+    const count = this.settingsService.settings().seatCount;
+    if (count > 2) this.settingsService.setSeatCount(count - 1);
+    this.contextMenu.set(null);
+  }
+
   onContextMenuAdd(): void {
     const m = this.contextMenu();
     if (m?.seatNumber !== undefined) {

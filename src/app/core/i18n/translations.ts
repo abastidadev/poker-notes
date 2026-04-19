@@ -7,7 +7,8 @@ export const T: Record<string, Record<Lang, string>> = {
 
   // Table
   'table.hint': { es: 'Pulsa un asiento para empezar 👆', en: 'Tap a seat to get started 👆' },
-  'table.ctxRemove': { es: '🗑 Quitar de la mesa', en: '🗑 Remove from table' },
+  'table.ctxRemove': { es: '🗑 Eliminar hueco', en: '🗑 Remove slot' },
+  'table.ctxRemoveEmpty': { es: '🗑 Eliminar hueco', en: '🗑 Remove slot' },
   'table.ctxAdd': { es: '➕ Añadir jugador', en: '➕ Add player' },
   'table.ctxAddSeat': { es: '➕ Añadir hueco de jugador', en: '➕ Add player seat' },
 
