@@ -33,7 +33,8 @@ export class SettingsComponent {
 
   protected readonly settings = this.settingsService.settings;
   protected readonly lang = computed(() => this.settings().language);
-  protected readonly customTags = () => this.tagService.allTags().filter((t) => t.isCustom);
+  protected readonly allTags = this.tagService.allTags;
+  protected readonly seatCountOptions = [6, 8, 9, 10, 12];
   protected readonly defaultColorMappings = DEFAULT_COLOR_MAPPINGS;
   protected readonly colorTypeLabels = COLOR_TYPE_LABELS;
 
@@ -46,6 +47,10 @@ export class SettingsComponent {
   protected readonly editTagColor = signal('');
   protected readonly newTagName = signal('');
   protected readonly newTagColor = signal('#6B7280');
+
+  onSeatCountChange(count: number): void {
+    this.settingsService.setSeatCount(count);
+  }
 
   onThemeChange(theme: string): void {
     this.settingsService.setTheme(theme as AppTheme);
@@ -86,7 +91,7 @@ export class SettingsComponent {
   }
 
   onDeleteTag(id: string): void {
-    this.tagService.deleteCustomTag(id);
+    this.tagService.deleteTag(id);
   }
 
   onCreateTag(): void {

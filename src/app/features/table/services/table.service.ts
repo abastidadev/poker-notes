@@ -1,10 +1,12 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
-import { TableState, createDefaultTableState, TOTAL_SEATS } from '../../../core/models/table.model';
+import { TableState, createDefaultTableState, ACTIVE_SEATS_FOR_COUNT } from '../../../core/models/table.model';
 import { StorageService } from '../../../core/services/storage.service';
+import { SettingsService } from '../../settings/services/settings.service';
 
 @Injectable({ providedIn: 'root' })
 export class TableService {
   private readonly storage = inject(StorageService);
+  private readonly settingsService = inject(SettingsService);
 
   readonly tableState = signal<TableState>(this.loadTable());
 
@@ -81,12 +83,11 @@ export class TableService {
   }
 
   private nextSeat(current: number): number {
-    let next = current;
-    for (let i = 0; i < TOTAL_SEATS; i++) {
-      next = (next % TOTAL_SEATS) + 1;
-      if (next !== current) return next;
-    }
-    return current;
+    const count = this.settingsService.settings().seatCount;
+    const activeSeats = ACTIVE_SEATS_FOR_COUNT[count] ?? ACTIVE_SEATS_FOR_COUNT[12];
+    const idx = activeSeats.indexOf(current);
+    if (idx === -1) return activeSeats[0];
+    return activeSeats[(idx + 1) % activeSeats.length];
   }
 
   private loadTable(): TableState {

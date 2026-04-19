@@ -37,7 +37,7 @@ export class AssignPlayerDialogComponent {
   protected readonly search = signal('');
   protected readonly showCreateForm = signal(false);
   protected readonly newAlias = signal('');
-  protected readonly newColor = signal('#3B82F6');
+  protected readonly newColor = signal('#FFFFFF');
   protected readonly newAvatar = signal('🎭');
   protected readonly showEmojiPicker = signal(false);
 

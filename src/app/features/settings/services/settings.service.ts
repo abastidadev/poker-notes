@@ -9,6 +9,7 @@ function createDefaultSettings(): AppSettings {
     theme: 'dark',
     language: 'es',
     colorMappings: [...DEFAULT_COLOR_MAPPINGS],
+    seatCount: 9,
   };
 }
 
@@ -37,6 +38,10 @@ export class SettingsService {
     this.settings.update((s) => ({ ...s, theme }));
   }
 
+  setSeatCount(seatCount: number): void {
+    this.settings.update((s) => ({ ...s, seatCount }));
+  }
+
   updateColorMapping(type: string, color: string): void {
     this.settings.update((s) => ({
       ...s,
@@ -53,6 +58,8 @@ export class SettingsService {
   }
 
   private loadSettings(): AppSettings {
-    return this.storage.get<AppSettings>('settings') ?? createDefaultSettings();
+    const stored = this.storage.get<AppSettings>('settings');
+    if (!stored) return createDefaultSettings();
+    return { ...createDefaultSettings(), ...stored };
   }
 }

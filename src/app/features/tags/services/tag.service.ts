@@ -7,13 +7,13 @@ import { StorageService } from '../../../core/services/storage.service';
 export class TagService {
   private readonly storage = inject(StorageService);
 
-  private readonly customTags = signal<Tag[]>(this.loadCustomTags());
+  private readonly tagsSignal = signal<Tag[]>(this.loadTags());
 
-  readonly allTags = computed<Tag[]>(() => [...DEFAULT_TAGS, ...this.customTags()]);
-  readonly predefinedTags = computed<Tag[]>(() => DEFAULT_TAGS);
+  readonly allTags = this.tagsSignal.asReadonly();
+  readonly predefinedTags = computed<Tag[]>(() => this.allTags().filter((t) => !t.isCustom));
 
   constructor() {
-    effect(() => this.storage.set('tags', this.customTags()));
+    effect(() => this.storage.set('all_tags', this.tagsSignal()));
   }
 
   getTagById(id: string): Tag | undefined {
@@ -26,19 +26,29 @@ export class TagService {
 
   addCustomTag(name: string, color: string): Tag {
     const tag: Tag = { id: crypto.randomUUID(), name, color, isCustom: true };
-    this.customTags.update((tags) => [...tags, tag]);
+    this.tagsSignal.update((tags) => [...tags, tag]);
     return tag;
   }
 
   updateTag(id: string, updates: Partial<Pick<Tag, 'name' | 'color'>>): void {
-    this.customTags.update((tags) => tags.map((t) => (t.id === id ? { ...t, ...updates } : t)));
+    this.tagsSignal.update((tags) => tags.map((t) => (t.id === id ? { ...t, ...updates } : t)));
   }
 
+  deleteTag(id: string): void {
+    this.tagsSignal.update((tags) => tags.filter((t) => t.id !== id));
+  }
+
+  /** @deprecated use deleteTag */
   deleteCustomTag(id: string): void {
-    this.customTags.update((tags) => tags.filter((t) => t.id !== id));
+    this.deleteTag(id);
   }
 
-  private loadCustomTags(): Tag[] {
-    return this.storage.get<Tag[]>('tags') ?? [];
+  private loadTags(): Tag[] {
+    // Try the new unified format first
+    const stored = this.storage.get<Tag[]>('all_tags');
+    if (stored !== null) return stored;
+    // Migration: old format only stored custom tags under 'tags' key
+    const oldCustom = this.storage.get<Tag[]>('tags') ?? [];
+    return [...DEFAULT_TAGS, ...oldCustom];
   }
 }

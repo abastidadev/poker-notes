@@ -10,4 +10,5 @@ export interface AppSettings {
   readonly theme: AppTheme;
   readonly language: AppLanguage;
   readonly colorMappings: ColorMapping[];
+  readonly seatCount: number;
 }

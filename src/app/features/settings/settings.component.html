@@ -84,6 +84,32 @@
       </div>
     </section>
 
+    <!-- Seat count -->
+    <section class="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">
+      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        {{ 'settings.seatCount' | t: lang() }}
+      </h3>
+      <div class="flex gap-2">
+        @for (count of seatCountOptions; track count) {
+          <button
+            class="px-3 py-1.5 text-sm rounded-md border transition-colors"
+            [class.bg-blue-600]="settings().seatCount === count"
+            [class.text-white]="settings().seatCount === count"
+            [class.border-blue-600]="settings().seatCount === count"
+            [class.bg-white]="settings().seatCount !== count"
+            [class.dark:bg-gray-700]="settings().seatCount !== count"
+            [class.text-gray-700]="settings().seatCount !== count"
+            [class.dark:text-gray-300]="settings().seatCount !== count"
+            [class.border-gray-300]="settings().seatCount !== count"
+            [class.dark:border-gray-600]="settings().seatCount !== count"
+            (click)="onSeatCountChange(count)"
+          >
+            {{ count }}
+          </button>
+        }
+      </div>
+    </section>
+
     <!-- Color mappings -->
     <section class="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">
       <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
@@ -110,13 +136,13 @@
       </div>
     </section>
 
-    <!-- Custom tags -->
+    <!-- Tags (default + custom unified) -->
     <section class="p-4 rounded-md bg-white dark:bg-gray-800 shadow-sm">
       <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-        {{ 'settings.customTags' | t: lang() }}
+        {{ 'settings.tags' | t: lang() }}
       </h3>
       <div class="space-y-2 mb-3">
-        @for (tag of customTags(); track tag.id) {
+        @for (tag of allTags(); track tag.id) {
           @if (editingTagId() === tag.id) {
             <div class="flex items-center gap-2">
               <input
@@ -146,13 +172,13 @@
             </div>
           } @else {
             <div class="flex items-center gap-2">
-              <span class="w-4 h-4 rounded-full" [style.background-color]="tag.color"></span>
+              <span class="w-4 h-4 rounded-full flex-shrink-0" [style.background-color]="tag.color"></span>
               <span class="flex-1 text-sm text-gray-700 dark:text-gray-300">{{ tag.name }}</span>
-              <button class="text-xs text-gray-400 hover:text-blue-500" (click)="onEditTag(tag)">
+              <button class="text-xs text-gray-400 hover:text-blue-500 transition-colors" (click)="onEditTag(tag)">
                 ✏️
               </button>
               <button
-                class="text-xs text-gray-400 hover:text-red-500"
+                class="text-xs text-gray-400 hover:text-red-500 transition-colors"
                 (click)="onDeleteTag(tag.id)"
               >
                 🗑
@@ -160,7 +186,7 @@
             </div>
           }
         } @empty {
-          <p class="text-xs text-gray-400">{{ 'settings.noCustomTags' | t: lang() }}</p>
+          <p class="text-xs text-gray-400">{{ 'settings.noTags' | t: lang() }}</p>
         }
       </div>
       <!-- Create new -->

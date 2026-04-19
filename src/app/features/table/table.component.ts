@@ -12,7 +12,7 @@ import {
 import { SeatComponent } from './components/seat/seat.component';
 import { AssignPlayerDialogComponent } from './components/assign-player-dialog/assign-player-dialog.component';
 import { TableService } from './services/table.service';
-import { TOTAL_SEATS } from '../../core/models/table.model';
+import { TOTAL_SEATS, ACTIVE_SEATS_FOR_COUNT } from '../../core/models/table.model';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
 import { SettingsService } from '../../features/settings/services/settings.service';
 
@@ -60,6 +60,11 @@ export class TableComponent implements OnInit, OnDestroy {
   readonly seatClicked = output<{ seatNumber: number; playerId: string | null }>();
 
   protected readonly seatPositions = SEAT_POSITIONS;
+  protected readonly activePositions = computed(() => {
+    const count = this.settingsService.settings().seatCount;
+    const activeNums = new Set(ACTIVE_SEATS_FOR_COUNT[count] ?? ACTIVE_SEATS_FOR_COUNT[12]);
+    return SEAT_POSITIONS.filter((p) => activeNums.has(p.number));
+  });
   protected readonly showAssignDialog = signal(false);
   protected readonly selectedEmptySeat = signal(0);
 
